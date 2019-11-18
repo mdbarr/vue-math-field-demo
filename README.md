@@ -1,4 +1,4 @@
-# mathjs-test
+# vue-math-field-demo
 
 ## Project setup
 ```

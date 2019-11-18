@@ -3,10 +3,12 @@
   v-bind="$attrs"
   v-model="current"
   @change="evaluate"
+  @keypress.enter="pressedEnter"
   @focus="focus"
   @blur="blur"
   :error="error"
   :error-messages="message"
+  ref="vtf"
   />
 </template>
 
@@ -26,7 +28,7 @@ export default {
     },
     units: {
       type: String,
-      default: 'voxels'
+      default: 'meters'
     },
     displayPrecision: {
       type: Number,
@@ -41,6 +43,10 @@ export default {
       default: 'fixed'
     },
     numeric: {
+      type: Boolean,
+      default: true
+    },
+    blurOnEnter: {
       type: Boolean,
       default: true
     }
@@ -77,6 +83,12 @@ export default {
         this.current = this.pretty;
         console.log('blurred');
         this.$emit('blur', ...args);
+      }
+    },
+    pressedEnter () {
+      if (this.blurOnEnter) {
+        this.evaluate(this.current);
+        this.$refs.vtf.blur();
       }
     },
     evaluate (value) {

@@ -157,7 +157,7 @@ export default {
   components: { VMathField },
   data: () => {
     return {
-      model: '(3 in + 5 cm + 2 voxels * PI / 2)',
+      model: '(37 in + 5 m + 2 voxels * PI / 2)',
       label: 'Voxels',
       hint: 'Enter voxels or expression',
       placeholder: '',
