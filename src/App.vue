@@ -20,6 +20,13 @@
             class="ma-1"
             label="Numeric Return Value"
             ></v-switch>
+          <v-select
+            v-model="enter"
+            :items="enterOptions"
+            item-text="text"
+            item-value="value"
+            label="Enter Key Behavior"
+            ></v-select>
           <v-text-field
             v-model="label"
             label="Label"
@@ -45,6 +52,7 @@
               v-model="model"
               :precision="Number(precision)"
               :displayPrecision="Number(displayPrecision)"
+              :enter="enter"
               :numeric="numeric"
               :label="label"
               :hint="hint"
@@ -158,8 +166,19 @@ export default {
   data: () => {
     return {
       model: '(37 in + 5 m + 2 voxels * PI / 2)',
-      label: 'Voxels',
-      hint: 'Enter voxels or expression',
+      label: 'Meters',
+      hint: 'Enter meters or expression',
+      enter: 'render',
+      enterOptions: [ {
+        text: 'Render while editable',
+        value: 'render'
+      }, {
+        text: 'Tab away from component',
+        value: 'blur'
+      }, {
+        text: 'Internally recompute value',
+        value: 'compute'
+      } ],
       placeholder: '',
       displayPrecision: 2,
       precision: 8,

@@ -3,11 +3,14 @@
   v-bind="$attrs"
   v-model="current"
   @change="evaluate"
+  @keydown="keydown"
   @keypress.enter="pressedEnter"
   @focus="focus"
   @blur="blur"
   :error="error"
   :error-messages="message"
+  :class="textColor"
+  :success="!error && mode === 'display'"
   ref="vtf"
   />
 </template>
@@ -46,9 +49,9 @@ export default {
       type: Boolean,
       default: true
     },
-    blurOnEnter: {
-      type: Boolean,
-      default: true
+    enter: {
+      type: String,
+      default: 'render'
     }
   },
   data: () => {
@@ -63,9 +66,12 @@ export default {
   },
   created () {
     this.mode = 'display';
-    this.evaluate(this.value.toString());
+    this.evaluate(this.value.toString(), true);
     this.current = this.pretty;
   },
+  computed: { textColor () {
+    return this.mode === 'display' ? 'blue--text' : 'black--text';
+  } },
   methods: {
     round (number) {
       const factor = Math.pow(10, this.precision);
@@ -85,15 +91,44 @@ export default {
         this.$emit('blur', ...args);
       }
     },
-    pressedEnter () {
-      if (this.blurOnEnter) {
-        this.evaluate(this.current);
-        this.$refs.vtf.blur();
+    keydown (event) {
+      if (this.mode === 'display' && this.enter === 'render' &&
+          (event.keyCode !== 9 && event.keyCode !== 13)) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.mode = 'edit';
+        this.update();
       }
     },
-    evaluate (value) {
+    pressedEnter () {
+      console.log('enter pressed');
+      if (this.enter === 'blur') {
+        if (!this.error) {
+          this.raw = this.current;
+          this.$refs.vtf.blur();
+        }
+      } else if (this.enter === 'render' && this.mode !== 'display') {
+        if (!this.error) {
+          this.raw = this.current;
+          this.mode = 'display';
+          this.update();
+
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      } else if (this.mode === 'display') {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    },
+    evaluate (value, force = false) {
       if (value.length) {
+        if (value === this.pretty && !force) {
+          return;
+        }
+
         this.raw = value;
+
         try {
           console.log(`evaluating "${ value }"`);
 
