@@ -21,6 +21,14 @@
             label="Numeric Return Value"
             ></v-switch>
           <v-select
+            v-model="units"
+            :items="unitOptions"
+            item-text="text"
+            item-value="value"
+            label="Default Units"
+            @change="unitChange"
+            ></v-select>
+          <v-select
             v-model="enter"
             :items="enterOptions"
             item-text="text"
@@ -52,6 +60,7 @@
               v-model="model"
               :precision="Number(precision)"
               :displayPrecision="Number(displayPrecision)"
+              :units="units"
               :enter="enter"
               :numeric="numeric"
               :label="label"
@@ -71,7 +80,7 @@
               :dense="dense"
               ></v-math-field>
             <div class="mt-12 text-center">
-              Return Value: <span style="background-color: #ddd; padding: 4px;">{{ model }}</span>
+              Return Value: <span style="border-bottom: 1px solid #4CAF50">{{ model }}</span>
             </div>
         </v-sheet>
         </v-col>
@@ -167,7 +176,7 @@ export default {
     return {
       model: '(37 in + 5 m + 2 voxels * PI / 2)',
       label: 'Meters',
-      hint: 'Enter meters or expression',
+      hint: 'Enter value or expression',
       enter: 'render',
       enterOptions: [ {
         text: 'Render while editable',
@@ -178,6 +187,26 @@ export default {
       }, {
         text: 'Internally recompute value',
         value: 'compute'
+      } ],
+      units: 'm',
+      unitOptions: [ {
+        text: 'Meters',
+        value: 'm'
+      }, {
+        text: 'Voxels',
+        value: 'voxels'
+      }, {
+        text: 'Centimeters',
+        value: 'cm'
+      }, {
+        text: 'Inches',
+        value: 'in'
+      }, {
+        text: 'Radians',
+        value: 'rad'
+      }, {
+        text: 'Degrees',
+        value: 'deg'
       } ],
       placeholder: '',
       displayPrecision: 2,
@@ -197,6 +226,19 @@ export default {
       counter: 0,
       dense: false
     };
+  },
+  methods: {
+    capitalize (value) {
+      return value.charAt(0).toUpperCase() + value.slice(1);
+    },
+    unitChange (value) {
+      for (const unit of this.unitOptions) {
+        if (unit.value === value) {
+          this.label = this.capitalize(unit.text);
+          break;
+        }
+      }
+    }
   }
 };
 </script>

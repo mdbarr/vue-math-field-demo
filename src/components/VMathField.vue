@@ -160,7 +160,11 @@ export default {
         }
       }
     },
-    update (value) {
+    update (recompute = false) {
+      if (recompute) {
+        this.evaluate(true);
+      }
+
       if (this.mode === 'display') {
         this.current = this.pretty;
       } else {
@@ -170,13 +174,16 @@ export default {
   },
   watch: {
     precision () {
-      this.update();
+      this.update(true);
     },
     displayPrecision () {
-      this.update();
+      this.update(true);
     },
     numeric () {
-      this.update();
+      this.update(true);
+    },
+    units () {
+      this.update(true);
     }
   }
 };
