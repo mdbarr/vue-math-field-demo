@@ -2,9 +2,7 @@
 <v-text-field
   v-bind="$attrs"
   v-model="current"
-  @change="evaluate"
   @keydown="keydown"
-  @keypress.enter="pressedEnter"
   @focus="focus"
   @blur="blur"
   :error="error"
@@ -66,7 +64,8 @@ export default {
   },
   created () {
     this.mode = 'display';
-    this.evaluate(this.value.toString(), true);
+    this.raw = this.value.toString();
+    this.evaluate(true);
     this.current = this.pretty;
   },
   computed: { textColor () {
@@ -98,36 +97,35 @@ export default {
         event.stopPropagation();
         this.mode = 'edit';
         this.update();
-      }
-    },
-    pressedEnter () {
-      console.log('enter pressed');
-      if (this.enter === 'blur') {
-        if (!this.error) {
-          this.raw = this.current;
-          this.$refs.vtf.blur();
-        }
-      } else if (this.enter === 'render' && this.mode !== 'display') {
-        if (!this.error) {
-          this.raw = this.current;
-          this.mode = 'display';
-          this.update();
-
+      } else if (event.keyCode === 13) {
+        if (this.mode === 'display') {
           event.preventDefault();
           event.stopPropagation();
+        } else {
+          this.raw = this.current;
+          this.evaluate();
+
+          if (this.enter === 'blur' && !this.error) {
+            this.$refs.vtf.blur();
+          } else if (this.enter === 'render' && !this.error) {
+            this.mode = 'display';
+            this.update();
+
+            event.preventDefault();
+            event.stopPropagation();
+          } else {
+            this.update();
+          }
         }
-      } else if (this.mode === 'display') {
-        event.preventDefault();
-        event.stopPropagation();
       }
     },
-    evaluate (value, force = false) {
+    evaluate (force = false) {
+      let value = this.raw;
+
       if (value.length) {
         if (value === this.pretty && !force) {
           return;
         }
-
-        this.raw = value;
 
         try {
           console.log(`evaluating "${ value }"`);
@@ -162,14 +160,11 @@ export default {
         }
       }
     },
-    update () {
-      if (this.raw) {
-        this.evaluate(this.raw);
-        if (this.mode === 'display') {
-          this.current = this.pretty;
-        } else {
-          this.current = this.raw;
-        }
+    update (value) {
+      if (this.mode === 'display') {
+        this.current = this.pretty;
+      } else {
+        this.current = this.raw;
       }
     }
   },
