@@ -5,6 +5,7 @@
   @keydown="keydown"
   @focus="focus"
   @blur="blur"
+  @click:clear="clear"
   :error="error"
   :error-messages="message"
   :class="textColor"
@@ -117,6 +118,16 @@ export default {
             this.update();
           }
         }
+      }
+    },
+    clear () {
+      this.current = '';
+      this.raw = '';
+      this.pretty = '';
+      if (this.numeric) {
+        this.$emit('input', 0);
+      } else {
+        this.$emit('input', '');
       }
     },
     evaluate (force = false) {
