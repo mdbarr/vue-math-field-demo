@@ -85,9 +85,15 @@ export default {
     },
     blur (...args) {
       if (this.error === false) {
-        this.mode = 'display';
-        this.current = this.pretty;
-        console.log('blurred');
+        if (this.mode === 'edit') {
+          this.raw = this.current;
+          this.evaluate();
+          if (!this.error) {
+            this.mode = 'display';
+            this.current = this.pretty;
+            console.log('blurred');
+          }
+        }
         this.$emit('blur', ...args);
       }
     },
@@ -117,6 +123,13 @@ export default {
           } else {
             this.update();
           }
+        }
+      } else if (event.keyCode === 27) {
+        console.log('escape');
+        if (this.mode === 'edit') {
+          this.current = this.raw;
+        } else {
+          this.current = this.pretty;
         }
       }
     },
