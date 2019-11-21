@@ -51,7 +51,8 @@ export default {
     enter: {
       type: String,
       default: 'render'
-    }
+    },
+    uuid: { type: String }
   },
   data: () => {
     return {
@@ -65,7 +66,11 @@ export default {
   },
   created () {
     this.mode = 'display';
-    this.raw = this.value.toString();
+    if (this.uuid && localStorage.getItem(this.uuid)) {
+      this.raw = localStorage.getItem(this.uuid);
+    } else {
+      this.raw = this.value.toString();
+    }
     this.evaluate(true);
     this.current = this.pretty;
   },
@@ -77,6 +82,13 @@ export default {
       const factor = Math.pow(10, this.precision);
       return Math.round(number * factor) / factor;
     },
+    save (value) {
+      this.raw = value;
+      if (this.uuid) {
+        localStorage.setItem(this.uuid, this.raw.toString());
+      }
+      return this.raw;
+    },
     focus (...args) {
       this.mode = 'edit';
       this.current = this.raw;
@@ -86,7 +98,8 @@ export default {
     blur (...args) {
       if (this.error === false) {
         if (this.mode === 'edit') {
-          this.raw = this.current;
+          this.save(this.current);
+
           this.evaluate();
           if (!this.error) {
             this.mode = 'display';
@@ -109,7 +122,7 @@ export default {
           event.preventDefault();
           event.stopPropagation();
         } else {
-          this.raw = this.current;
+          this.save(this.current);
           this.evaluate();
 
           if (this.enter === 'blur' && !this.error) {
@@ -135,7 +148,7 @@ export default {
     },
     clear () {
       this.current = '';
-      this.raw = '';
+      this.save(this.current);
       this.pretty = '';
       if (this.numeric) {
         this.$emit('input', 0);

@@ -63,6 +63,7 @@
               :units="units"
               :enter="enter"
               :numeric="numeric"
+              uuid="7c563870-0c82-11ea-b704-2fa260995b35"
               :label="label"
               :hint="hint"
               :placeholder="placeholder"
