@@ -81,6 +81,7 @@
               :dense="dense"
               type="number"
               @keydown.enter="log"
+              :rules="[ positive ]"
               ></v-math-field>
             <div class="mt-12 text-center">
               Return Value: <span style="border-bottom: 1px solid #4CAF50">{{ model }}</span>
@@ -244,6 +245,12 @@ export default {
     },
     log (...args) {
       console.log(...args);
+    },
+    positive (value) {
+      if (value < 0) {
+        return 'Positive numbers only';
+      }
+      return true;
     }
   }
 };

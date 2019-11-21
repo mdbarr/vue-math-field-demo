@@ -217,18 +217,31 @@ export default {
           this.error = false;
           this.message = '';
 
-          if (this.numeric) {
-            const number = this.round(value.toNumber(this.units));
-            this.$emit('input', number);
-            this.$emit('change', number);
+          const number = this.round(value.toNumber(this.units));
+          const returnValue = (this.numeric || this.type === 'number') ? number : this.pretty;
+
+          for (const rule of this.rules) {
+            const valid = rule(returnValue);
+            if (valid !== true) {
+              this.error = true;
+              if (typeof valid === 'string') {
+                this.message = valid;
+              }
+              break;
+            }
+          }
+
+          if (this.error) {
+            this.$emit('update:error', this.error);
           } else {
-            this.$emit('input', this.pretty);
-            this.$emit('change', this.pretty);
+            this.$emit('input', returnValue);
+            this.$emit('change', returnValue);
           }
         } catch (error) {
           console.log('errored', error);
           this.error = true;
           this.message = error.message;
+          this.$emit('update:error', this.error);
         }
       }
     },
