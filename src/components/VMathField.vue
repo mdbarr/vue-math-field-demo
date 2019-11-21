@@ -1,16 +1,20 @@
 <template>
 <v-text-field
+  :class="textColor"
+  :error-messages="message"
+  :error="error"
+  :success="!error && mode === 'display'"
+  @blur="blur"
+  @click:append-outer="$emit('click:append-outer', $event)"
+  @click:append="$emit('click:append', $event)"
+  @click:clear="clear"
+  @click:prepend-inner="$emit('click:prepend-inner', $event)"
+  @click:prepend="$emit('click:prepend', $event)"
+  @focus="focus"
+  @keydown="keydown"
+  ref="vtf"
   v-bind="attributes"
   v-model="current"
-  @keydown="keydown"
-  @focus="focus"
-  @blur="blur"
-  @click:clear="clear"
-  :error="error"
-  :error-messages="message"
-  :class="textColor"
-  :success="!error && mode === 'display'"
-  ref="vtf"
   >
   <slot v-for="(_, name) in $slots" :name="name" :slot="name" />
   <template v-for="(_, name) in $scopedSlots" :slot="name" slot-scope="slotData">
@@ -94,9 +98,12 @@ export default {
 
     this.evaluate(true);
     this.current = this.pretty;
-    console.log(this.$attrs);
+    console.log(this.$listeners);
   },
   computed: { textColor () {
+    if (this.$attrs.class) {
+      return this.$attrs.class;
+    }
     return this.mode === 'display' ? 'blue--text' : 'black--text';
   } },
   methods: {
@@ -167,16 +174,20 @@ export default {
           this.current = this.pretty;
         }
       }
+      this.$emit('keydown', event);
     },
-    clear () {
+    clear (event) {
       this.current = '';
       this.save(this.current);
       this.pretty = '';
       if (this.numeric || this.type === 'number') {
         this.$emit('input', 0);
+        this.$emit('change', 0);
       } else {
         this.$emit('input', '');
+        this.$emit('change', '');
       }
+      this.$emit('click:clear', event);
     },
     evaluate (force = false) {
       let value = this.raw;
@@ -209,8 +220,10 @@ export default {
           if (this.numeric) {
             const number = this.round(value.toNumber(this.units));
             this.$emit('input', number);
+            this.$emit('change', number);
           } else {
             this.$emit('input', this.pretty);
+            this.$emit('change', this.pretty);
           }
         } catch (error) {
           console.log('errored', error);

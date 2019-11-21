@@ -80,6 +80,7 @@
               :counter="counterEn ? counter : false"
               :dense="dense"
               type="number"
+              @keydown.enter="log"
               ></v-math-field>
             <div class="mt-12 text-center">
               Return Value: <span style="border-bottom: 1px solid #4CAF50">{{ model }}</span>
@@ -240,6 +241,9 @@ export default {
           break;
         }
       }
+    },
+    log (...args) {
+      console.log(...args);
     }
   }
 };
