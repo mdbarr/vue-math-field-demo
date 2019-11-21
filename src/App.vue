@@ -79,6 +79,7 @@
               :flat="flat"
               :counter="counterEn ? counter : false"
               :dense="dense"
+              type="number"
               ></v-math-field>
             <div class="mt-12 text-center">
               Return Value: <span style="border-bottom: 1px solid #4CAF50">{{ model }}</span>

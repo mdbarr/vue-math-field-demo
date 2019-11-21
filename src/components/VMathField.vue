@@ -1,6 +1,6 @@
 <template>
 <v-text-field
-  v-bind="$attrs"
+  v-bind="attributes"
   v-model="current"
   @keydown="keydown"
   @focus="focus"
@@ -11,7 +11,12 @@
   :class="textColor"
   :success="!error && mode === 'display'"
   ref="vtf"
-  />
+  >
+  <slot v-for="(_, name) in $slots" :name="name" :slot="name" />
+  <template v-for="(_, name) in $scopedSlots" :slot="name" slot-scope="slotData">
+    <slot :name="name" v-bind="slotData" />
+  </template>
+</v-text-field>
 </template>
 
 <script>
@@ -24,21 +29,13 @@ math.createUnit('voxel', {
 export default {
   name: 'v-math-field',
   props: {
-    value: {
-      type: [ Number, String ],
-      default: 0
-    },
-    units: {
-      type: String,
-      default: 'meters'
-    },
     displayPrecision: {
       type: Number,
       default: 2
     },
-    precision: {
-      type: Number,
-      default: 4
+    enter: {
+      type: String,
+      default: 'render'
     },
     notation: {
       type: String,
@@ -48,11 +45,27 @@ export default {
       type: Boolean,
       default: true
     },
-    enter: {
-      type: String,
-      default: 'render'
+    precision: {
+      type: Number,
+      default: 4
     },
-    uuid: { type: String }
+    rules: {
+      type: Array,
+      default: () => { return []; }
+    },
+    type: {
+      type: String,
+      default: 'number'
+    },
+    units: {
+      type: String,
+      default: 'meters'
+    },
+    uuid: { type: String },
+    value: {
+      type: [ Number, String ],
+      default: 0
+    }
   },
   data: () => {
     return {
@@ -71,8 +84,17 @@ export default {
     } else {
       this.raw = this.value.toString();
     }
+
+    this.attributes = {};
+    for (const attr in this.$attrs) {
+      if (attr !== 'type' && attr !== 'rules') {
+        this.attributes[attr] = this.$attrs[attr];
+      }
+    }
+
     this.evaluate(true);
     this.current = this.pretty;
+    console.log(this.$attrs);
   },
   computed: { textColor () {
     return this.mode === 'display' ? 'blue--text' : 'black--text';
@@ -150,7 +172,7 @@ export default {
       this.current = '';
       this.save(this.current);
       this.pretty = '';
-      if (this.numeric) {
+      if (this.numeric || this.type === 'number') {
         this.$emit('input', 0);
       } else {
         this.$emit('input', '');
