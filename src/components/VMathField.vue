@@ -33,9 +33,17 @@ math.createUnit('voxel', {
 export default {
   name: 'v-math-field',
   props: {
+    addUnits: {
+      type: Boolean,
+      default: true
+    },
+    autoSelect: {
+      type: Boolean,
+      default: true
+    },
     displayPrecision: {
       type: Number,
-      default: 2
+      default: 3
     },
     enter: {
       type: String,
@@ -51,7 +59,7 @@ export default {
     },
     precision: {
       type: Number,
-      default: 4
+      default: 8
     },
     rules: {
       type: Array,
@@ -63,7 +71,7 @@ export default {
     },
     units: {
       type: String,
-      default: 'meters'
+      default: 'm'
     },
     uuid: { type: String },
     value: {
@@ -89,6 +97,10 @@ export default {
       this.raw = this.value.toString();
     }
 
+    if (this.addUnits && Number(this.raw).toString() === this.raw) {
+      this.raw = `${ this.raw } ${ this.units }`;
+    }
+
     this.attributes = {};
     for (const attr in this.$attrs) {
       if (attr !== 'type' && attr !== 'rules') {
@@ -98,6 +110,7 @@ export default {
 
     this.evaluate(true);
     this.current = this.pretty;
+
     console.log(this.$listeners);
   },
   computed: { textColor () {
@@ -118,11 +131,19 @@ export default {
       }
       return this.raw;
     },
+    select () {
+      this.$nextTick(() => {
+        this.$refs.vtf.$refs.input.select();
+      });
+    },
     focus (...args) {
       this.mode = 'edit';
       this.current = this.raw;
       console.log('focused');
       this.$emit('focus', ...args);
+      if (this.autoSelect) {
+        this.select();
+      }
     },
     blur (...args) {
       if (this.error === false) {
@@ -146,6 +167,9 @@ export default {
         event.stopPropagation();
         this.mode = 'edit';
         this.update();
+        if (this.autoSelect) {
+          this.select();
+        }
       } else if (event.keyCode === 13) {
         if (this.mode === 'display') {
           event.preventDefault();

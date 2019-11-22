@@ -178,7 +178,7 @@ export default {
   components: { VMathField },
   data: () => {
     return {
-      model: '(37 in + 5 m + 2 voxels * PI / 2)',
+      model: 0.0125,
       label: 'Meters',
       hint: 'Enter value or expression',
       enter: 'render',
@@ -213,7 +213,7 @@ export default {
         value: 'deg'
       } ],
       placeholder: '',
-      displayPrecision: 2,
+      displayPrecision: 3,
       precision: 8,
       numeric: true,
       shaped: false,
