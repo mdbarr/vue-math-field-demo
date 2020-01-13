@@ -10,6 +10,7 @@
   @click:clear="clear"
   @click:prepend-inner="$emit('click:prepend-inner', $event)"
   @click:prepend="$emit('click:prepend', $event)"
+  @click="click"
   @focus="focus"
   @keydown="keydown"
   ref="vtf"
@@ -86,6 +87,7 @@ export default {
       raw: '',
       pretty: '',
       error: false,
+      errored: '',
       message: ''
     };
   },
@@ -145,8 +147,16 @@ export default {
         this.select();
       }
     },
+    click () {
+      if (this.mode === 'display') {
+        this.mode = 'edit';
+        this.current = this.raw;
+        this.update();
+      }
+    },
     blur (...args) {
-      if (this.error === false) {
+      console.log(this.error, this.errored, this.raw, this.current, this.mode);
+      if (this.error === false || (this.errored !== this.current && this.mode === 'edit')) {
         if (this.mode === 'edit') {
           this.save(this.current);
 
@@ -239,6 +249,7 @@ export default {
           });
 
           this.error = false;
+          this.errored = '';
           this.message = '';
 
           const number = this.round(value.toNumber(this.units));
@@ -248,6 +259,7 @@ export default {
             const valid = rule(returnValue);
             if (valid !== true) {
               this.error = true;
+              this.errored = this.raw;
               if (typeof valid === 'string') {
                 this.message = valid;
               }
@@ -264,6 +276,7 @@ export default {
         } catch (error) {
           console.log('errored', error);
           this.error = true;
+          this.errored = this.raw;
           this.message = error.message;
           this.$emit('update:error', this.error);
         }
